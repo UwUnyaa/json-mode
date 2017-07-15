@@ -1,0 +1,12 @@
+[
+  [
+    "a string that has something that looks like an [Array] inside",
+    "a string with \"{Object looking thing} inside"
+  ],
+  {
+    "something": [
+      1234,
+	[true, false]
+    ]
+  }
+]

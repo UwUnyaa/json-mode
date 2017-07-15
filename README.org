@@ -1,0 +1,23 @@
+#+TITLE: json-mode — a JSON editing mode
+
+This is a simple JSON editing mode for Emacs.
+
+* Features
+- Folding of Objects and Arrays (=C-c C-f= to toggle next one)
+- Pretty printing files (=C-c C-p=) (by default when file is opened as well,
+  ~json-mode-pretty-print-on-open~ can be set to ~nil~ to disable this)
+- Minification (=C-c C-m=)
+- Validation (=C-c C-v=)
+
+* Installation
+The easiest way to install this mode is to simply put it somewhere in
+~load-path~ and add
+#+BEGIN_SRC elisp
+(require 'json-mode)
+#+END_SRC
+to your init file.
+
+Files with =.json= extension will be opened with this mode by default.
+
+This mode has autoload comments, so it should work nicely with lazy loading
+setups.
