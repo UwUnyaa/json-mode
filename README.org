@@ -9,6 +9,8 @@ This is a simple JSON editing mode for Emacs.
 - Minification (=C-c C-m=)
 - Validation (=C-c C-v=)
 
+[[https://asciinema.org/a/xv1VqgTkxZBGJGcCV6AptGzCK][https://asciinema.org/a/xv1VqgTkxZBGJGcCV6AptGzCK.png]]
+
 * Installation
 The easiest way to install this mode is to simply put it somewhere in
 ~load-path~ and add
