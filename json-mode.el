@@ -111,7 +111,7 @@ Array."
         (while (not (json-mode-before-object-or-array-p))
           (forward-sexp 1)
           ;; skip label colons
-          (when (json-mode-after-string-end-p)
+          (when (json-mode-at-string-end-p)
             (json-mode-skip-label-colon)))
       (scan-error))
     (if (json-mode-before-object-or-array-p)
@@ -149,7 +149,7 @@ Array."
   (and (eq (json-mode-face-before-point) nil)
        (eq (face-at-point) 'font-lock-string-face)))
 
-(defun json-mode-after-string-end-p ()
+(defun json-mode-at-string-end-p ()
   (and (eq (json-mode-face-before-point) 'font-lock-string-face)
        (eq (face-at-point) nil)))
 
