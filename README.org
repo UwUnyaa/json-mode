@@ -3,7 +3,8 @@
 This is a simple JSON editing mode for Emacs.
 
 * Features
-- Folding of Objects and Arrays (=C-c C-f= to toggle next one)
+- Folding of Objects and Arrays (=C-c C-f= to toggle next one, =C-c C-u= to
+  unfold everything)
 - Pretty printing files (=C-c C-p=) (by default when file is opened as well,
   ~json-mode-pretty-print-on-open~ can be set to ~nil~ to disable this)
 - Minification (=C-c C-m=)
