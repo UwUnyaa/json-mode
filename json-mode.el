@@ -1,5 +1,5 @@
 ;;; json-mode.el --- basic JSON editing mode -*- lexical-binding: t; coding: utf-8 -*-
-;;; Version: 0.2.0
+;;; Version: 0.2.1
 
 ;; Author: DoMiNeLa10 (https://github.com/DoMiNeLa10)
 
@@ -68,7 +68,7 @@
 (define-derived-mode json-mode js-mode "JSON"
   "A simple mode for JSON editing."
   (when json-mode-pretty-print-on-open
-    (json-pretty-print-buffer)
+    (json-mode-pretty-print-buffer)
     (goto-char (point-min))    ; this line is ignored in pretty print function
     (set-buffer-modified-p nil)))
 
@@ -79,7 +79,7 @@ Jumps to the beginning of it. Ignores errors."
   (interactive)
   (condition-case nil                   ; error variable is unused
       (json-pretty-print-buffer)
-    (json-error (user-error "Invalid JSON")))
+    (error (user-error "Invalid JSON")))
   (goto-char (point-min)))
 
 (defun json-mode-minify-buffer ()
@@ -174,7 +174,7 @@ Array."
       (progn
         (json-read-from-string (buffer-string))
         t)
-    (json-error nil)))
+    (error nil)))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.json\\'" . json-mode))
