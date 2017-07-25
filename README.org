@@ -24,3 +24,6 @@ Files with =.json= extension will be opened with this mode by default.
 
 This mode has autoload comments, so it should work nicely with lazy loading
 setups.
+
+* Known problems
+- Pretty printing replaces ~{}~ with ~null~
