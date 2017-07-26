@@ -26,4 +26,4 @@ This mode has autoload comments, so it should work nicely with lazy loading
 setups.
 
 * Known problems
-- Pretty printing replaces ~{}~ with ~null~
+- Pretty printing and minifying replaces ~{}~ with ~null~
