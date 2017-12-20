@@ -9,31 +9,30 @@
 ;; under the terms of the GNU General Public License as published by the Free
 ;; Software Foundation, either version 3 of the License, or (at your option)
 ;; any later version.
-
+;;
 ;; This program is distributed in the hope that it will be useful, but WITHOUT
 ;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 ;; FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
 ;; more details.
-
+;;
 ;; You should have received a copy of the GNU General Public License along
 ;; with this program. If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-
 ;; This file defines a major mode for editing JSON files. It provides an
 ;; option to pretty print JSON files when they're opened and provides a way to
 ;; fold Array and Object literals (bound to C-c C-f by default
 ;; (`json-mode-fold'.)) The entire buffer can be unfolded quickly with the
 ;; command bound to C-c C-u (`json-mode-unfold-all'.)
-
+;;
 ;; Content can be pretty printed (with a command bound to C-c C-p by default
 ;; (`json-mode-pretty-print-buffer')) and minified (with a command bound to
 ;; C-c C-m by default (`json-mode-minify-buffer'.)) Both of these commands try
 ;; to validate JSON before doing their thing.
-
+;;
 ;; Buffer can be also validated with a command bound to C-c C-v by default
 ;; (`json-mode-validate-buffer'.)
-
+;;
 ;; Files with .json extension will be opened with this major mode by default.
 
 (require 'json)
