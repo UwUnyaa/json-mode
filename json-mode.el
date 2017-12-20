@@ -89,7 +89,7 @@ Jumps to the beginning of it. Ignores errors."
   (unless (json-mode-buffer-valid-p)
     (user-error "Invalid JSON"))
   (let ((json-encoding-pretty-print nil)
-        (Json-object-type 'alist)
+        (json-object-type 'alist)
         (buffer-text (delete-and-extract-region (point-min) (point-max))))
     (insert (json-encode (json-read-from-string buffer-text)))))
 
