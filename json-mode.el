@@ -64,6 +64,7 @@
     map)
   "Keymap for `json-mode'.")
 
+;;; Code:
 ;;;###autoload
 (define-derived-mode json-mode js-mode "JSON"
   "A simple mode for JSON editing."
@@ -88,14 +89,13 @@ Jumps to the beginning of it. Ignores errors."
   (unless (json-mode-buffer-valid-p)
     (user-error "Invalid JSON"))
   (let ((json-encoding-pretty-print nil)
-        (json-object-type 'alist)
+        (Json-object-type 'alist)
         (buffer-text (delete-and-extract-region (point-min) (point-max))))
     (insert (json-encode (json-read-from-string buffer-text)))))
 
 (defun json-mode-fold ()
-  "Folds or unfolds the Array or Object literal after point
-without crossing enclosing boundaries of enclosing Object or
-Array."
+  "Fold or unfold the Array or Object literal after point.
+Doesn't cross boundaries of enclosing Object or Array."
   (interactive)
   (save-excursion
     ;; get out of the string
@@ -135,30 +135,37 @@ Array."
   (delete-all-overlays))
 
 (defun json-mode-validate-buffer ()
+  "Validate a buffer and show result in minibuffer."
   (interactive)
   (if (json-mode-buffer-valid-p)
       (message "Buffer contains a valid JSON")
     (message "Buffer doesn't contain a valid JSON")))
 
 (defun json-mode-before-object-or-array-p ()
+  "Check if point is before opening of an Object or Array."
   (looking-at "[ \t\r\n]*[\\[{]"))
 
 (defun json-mode-face-before-point ()
+  "Get face of character before point."
   (get-text-property (1- (point)) 'face))
 
 (defun json-mode-at-string-beginning-p ()
+  "Check if point is at the beginning of a String."
   (and (eq (json-mode-face-before-point) nil)
        (eq (face-at-point) 'font-lock-string-face)))
 
 (defun json-mode-at-string-end-p ()
+  "Check if point is just after a String."
   (and (eq (json-mode-face-before-point) 'font-lock-string-face)
        (eq (face-at-point) nil)))
 
 (defun json-mode-inside-string-p ()
+  "Check if point is inside of a String."
   (and (eq (face-at-point) 'font-lock-string-face)
        (eq (json-mode-face-before-point) 'font-lock-string-face)))
 
 (defun json-mode-skip-label-colon ()
+  "Move point past a label colon."
   (skip-chars-forward " \t\r\n:"))
 
 (defun json-mode-hide-region (beg end)
@@ -171,6 +178,7 @@ Array."
     (overlay-put overlay 'evaporate t)))
 
 (defun json-mode-buffer-valid-p ()
+  "Check if buffer has a valid JSON inside."
   (condition-case nil
       (progn
         (json-read-from-string (buffer-string))
@@ -181,3 +189,4 @@ Array."
 (add-to-list 'auto-mode-alist '("\\.json\\'" . json-mode))
 
 (provide 'json-mode)
+;;; json-mode.el ends here
