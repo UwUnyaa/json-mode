@@ -11,7 +11,7 @@ This is a simple JSON editing mode for Emacs.
 - Idle time validation with result displayed on mode line
 - Validation (=C-c C-v=)
 
-[[https://asciinema.org/a/xv1VqgTkxZBGJGcCV6AptGzCK][https://asciinema.org/a/xv1VqgTkxZBGJGcCV6AptGzCK.png]]
+[[https://asciinema.org/a/OJccRvxhZjLLBvovqEtV3PEF7][https://asciinema.org/a/OJccRvxhZjLLBvovqEtV3PEF7.png]]
 
 * Installation
 The easiest way to install this mode is to simply put it somewhere in
