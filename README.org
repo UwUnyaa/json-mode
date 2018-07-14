@@ -8,6 +8,7 @@ This is a simple JSON editing mode for Emacs.
 - Pretty printing files (=C-c C-p=) (by default when file is opened as well,
   ~json-mode-pretty-print-on-open~ can be set to ~nil~ to disable this)
 - Minification (=C-c C-m=)
+- Idle time validation with result displayed on mode line
 - Validation (=C-c C-v=)
 
 [[https://asciinema.org/a/xv1VqgTkxZBGJGcCV6AptGzCK][https://asciinema.org/a/xv1VqgTkxZBGJGcCV6AptGzCK.png]]
