@@ -1,5 +1,5 @@
 ;;; json-mode.el --- basic JSON editing mode -*- lexical-binding: t; coding: utf-8 -*-
-;;; Version: 0.2.2
+;;; Version: 0.3.0
 
 ;; Author: DoMiNeLa10 (https://github.com/DoMiNeLa10)
 
@@ -30,8 +30,8 @@
 ;; C-c C-m by default (`json-mode-minify-buffer'.)) Both of these commands try
 ;; to validate JSON before doing their thing.
 ;;
-;; Buffer can be also validated with a command bound to C-c C-v by default
-;; (`json-mode-validate-buffer'.)
+;; Buffer is validated when Emacs is idle, and it can be also validated with a
+;; command bound to C-c C-v by default (`json-mode-validate-buffer'.)
 ;;
 ;; Files with .json extension will be opened with this major mode by default.
 
@@ -52,6 +52,20 @@
   :group 'json-mode
   :type 'string)
 
+(defcustom json-mode-timer-enable t
+  "Enables idle validation displayed on mode line."
+  :group 'json-mode
+  :type 'boolean)
+
+(defcustom json-mode-timer-delay 0.1
+  "Delay before idle timer for validation starts."
+  :group 'json-mode
+  :type 'float)
+
+;;; constants
+(defconst json-mode-mode-name "JSON"
+  "Mode name for `json-mode'.")
+
 ;;; variables
 (defvar json-mode-map
   (let ((map (make-sparse-keymap)))
@@ -70,7 +84,10 @@
   (when json-mode-pretty-print-on-open
     (json-mode-pretty-print-buffer)
     (goto-char (point-min))    ; this line is ignored in pretty print function
-    (set-buffer-modified-p nil)))
+    (set-buffer-modified-p nil))
+  (when json-mode-timer-enable
+    (json-mode-timer-set)
+    (json-mode-timer-function (current-buffer))))
 
 ;;; defuns
 (defun json-mode-pretty-print-buffer ()
@@ -183,6 +200,29 @@ Doesn't cross boundaries of enclosing Object or Array."
         (json-read-from-string (buffer-string))
         t)
     (error nil)))
+
+(defun json-mode-timer-function (buffer)
+  "Idle timer function to display JSON validity in mode line."
+  ;; avoid validating when buffer isn't active
+  (when (eq (current-buffer) buffer)
+    (setq mode-name (format "%s validating…" json-mode-mode-name))
+    (let ((buffer-valid-p (json-mode-buffer-valid-p)))
+      (setq mode-name (format "%s %s"
+            json-mode-mode-name
+            (if buffer-valid-p
+                "valid"
+              "invalid")))))
+  ;; make the timer repeat itself
+  (json-mode-timer-set))
+
+(defun json-mode-timer-set ()
+  "Set up a timer for validation."
+  (let ((timer (timer-create)))
+    (timer-set-function timer
+                        #'json-mode-timer-function
+                        (list (current-buffer)))
+    (timer-set-idle-time timer json-mode-timer-delay)
+    (timer-activate-when-idle timer)))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.json\\'" . json-mode))
