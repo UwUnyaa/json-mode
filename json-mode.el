@@ -202,7 +202,9 @@ Doesn't cross boundaries of enclosing Object or Array."
     (error nil)))
 
 (defun json-mode-timer-function (buffer)
-  "Idle timer function to display JSON validity in mode line."
+  "Idle timer function to display JSON validity in mode line.
+
+Only BUFFER will be validated."
   ;; avoid validating when buffer isn't active
   (when (eq (current-buffer) buffer)
     (setq mode-name (format "%s validating…" json-mode-mode-name))
