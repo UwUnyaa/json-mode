@@ -35,6 +35,8 @@
 ;;
 ;; Files with .json extension will be opened with this major mode by default.
 
+(eval-when-compile
+  (require 'cl))                        ; `cl-flet'
 (require 'json)
 
 ;;; group and customizable options
@@ -91,9 +93,16 @@
     (set-buffer-modified-p nil))
   (when json-mode-timer-enable
     (make-local-variable 'json-mode-timer)
-    (json-mode-timer-function (current-buffer) t)
-    (add-hook 'kill-buffer-hook #'json-mode-timer-cancel nil t)
-    (add-hook 'change-major-mode-hook #'json-mode-timer-cancel nil t)))
+    (let ((buffer (current-buffer)))
+      (json-mode-timer-function buffer t)
+      (add-hook 'after-change-functions
+                (lambda (&rest args)
+                  (ignore args)
+                  (json-mode-timer-set buffer))
+                nil t)
+      (cl-flet ((timer-cancel () (json-mode-timer-cancel buffer)))
+        (add-hook 'kill-buffer-hook #'timer-cancel nil t)
+        (add-hook 'change-major-mode-hook #'timer-cancel nil t)))))
 
 ;;; defuns
 (defun json-mode-pretty-print-buffer ()
@@ -211,34 +220,43 @@ Doesn't cross boundaries of enclosing Object or Array."
   "Idle timer function to display JSON validity in mode line.
 
 Only BUFFER will be validated when it's active or FORCE is t."
-  ;; avoid validating when buffer isn't active
-  (when (or force (eq (current-buffer) buffer))
-    (setq mode-name (format "%s validating…" json-mode-mode-name))
-    (let ((buffer-valid-p (json-mode-buffer-valid-p)))
-      (setq mode-name (format "%s %s"
-                              json-mode-mode-name
-                              (if buffer-valid-p
-                                  "valid"
-                                "invalid")))))
-  ;; make the timer repeat itself
-  (json-mode-timer-set))
+  (let ((current-buffer-p (eq (current-buffer) buffer)))
+    ;; avoid validating when buffer isn't active
+    (when (or force current-buffer-p)
+      (setq mode-name (format "%s validating…" json-mode-mode-name))
+      (let ((buffer-valid-p (with-current-buffer buffer
+                              (json-mode-buffer-valid-p))))
+        (setq mode-name (format "%s %s"
+                                json-mode-mode-name
+                                (if buffer-valid-p
+                                    "valid"
+                                  "invalid")))))
+    ;; set a timer if buffer wasn't current
+    (when (and (not force) (not current-buffer-p))
+      (add-hook 'buffer-list-update-hook
+                (lambda () (json-mode-timer-set buffer))))))
 
-(defun json-mode-timer-set ()
-  "Set up a timer for validation."
-  (let ((timer (timer-create)))
-    (timer-set-function timer
-                        #'json-mode-timer-function
-                        (list (current-buffer)))
-    (timer-set-idle-time timer json-mode-timer-delay)
-    (timer-activate-when-idle timer)
-    (setq json-mode-timer timer)))
+(defun json-mode-timer-set (target-buffer)
+  "Set up a timer for validation.
 
-(defun json-mode-timer-cancel ()
-  "Cancel a timer in current buffer."
-  (when (local-variable-p 'json-mode-timer)
-    (when json-mode-timer
-      (cancel-timer json-mode-timer))
-    (kill-local-variable 'json-mode-timer)))
+TARGET-BUFFER should be the buffer for which the timer should be
+set."
+  (with-current-buffer target-buffer
+    (let ((timer (timer-create)))
+      (timer-set-function timer
+                          #'json-mode-timer-function
+                          (list target-buffer))
+      (timer-set-idle-time timer json-mode-timer-delay)
+      (timer-activate-when-idle timer)
+      (setq json-mode-timer timer))))
+
+(defun json-mode-timer-cancel (buffer)
+  "Cancel a timer in BUFFER."
+  (with-current-buffer buffer
+    (when (local-variable-p 'json-mode-timer)
+      (when json-mode-timer
+        (cancel-timer json-mode-timer))
+      (kill-local-variable 'json-mode-timer))))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.json\\'" . json-mode))
