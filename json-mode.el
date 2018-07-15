@@ -94,7 +94,7 @@
   (when json-mode-timer-enable
     (make-local-variable 'json-mode-timer)
     (let ((buffer (current-buffer)))
-      (json-mode-timer-function buffer t)
+      (json-mode-mode-line-validate buffer t)
       (add-hook 'after-change-functions
                 (lambda (&rest args)
                   (ignore args)
@@ -216,7 +216,7 @@ Doesn't cross boundaries of enclosing Object or Array."
         t)
     (error nil)))
 
-(defun json-mode-timer-function (buffer &optional force)
+(defun json-mode-mode-line-validate (buffer &optional force)
   "Idle timer function to display JSON validity in mode line.
 
 Only BUFFER will be validated when it's active or FORCE is t."
@@ -233,7 +233,7 @@ Only BUFFER will be validated when it's active or FORCE is t."
                                   "invalid")))))
     ;; set a timer if buffer wasn't current
     (when (and (not force) (not current-buffer-p))
-      (add-hook 'buffer-list-update-hook
+      (add-hook 'buffer-list-u pdate-hook
                 (lambda () (json-mode-timer-set buffer))))))
 
 (defun json-mode-timer-set (target-buffer)
@@ -244,7 +244,7 @@ set."
   (with-current-buffer target-buffer
     (let ((timer (timer-create)))
       (timer-set-function timer
-                          #'json-mode-timer-function
+                          #'json-mode-mode-line-validate
                           (list target-buffer))
       (timer-set-idle-time timer json-mode-timer-delay)
       (timer-activate-when-idle timer)
