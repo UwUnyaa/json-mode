@@ -83,7 +83,7 @@
 
 ;;; Code:
 ;;;###autoload
-(define-derived-mode json-mode js-mode "JSON"
+(define-derived-mode json-mode js-mode json-mode-mode-name
   "A simple mode for JSON editing."
   (when json-mode-pretty-print-on-open
     (json-mode-pretty-print-buffer)
