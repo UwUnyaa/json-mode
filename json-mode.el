@@ -233,7 +233,7 @@ Only BUFFER will be validated when it's active or FORCE is t."
                                   "invalid")))))
     ;; set a timer if buffer wasn't current
     (when (and (not force) (not current-buffer-p))
-      (add-hook 'buffer-list-u pdate-hook
+      (add-hook 'buffer-list-update-hook
                 (lambda () (json-mode-timer-set buffer))))))
 
 (defun json-mode-timer-set (target-buffer)
