@@ -216,10 +216,10 @@ Only BUFFER will be validated when it's active or FORCE is t."
     (setq mode-name (format "%s validating…" json-mode-mode-name))
     (let ((buffer-valid-p (json-mode-buffer-valid-p)))
       (setq mode-name (format "%s %s"
-            json-mode-mode-name
-            (if buffer-valid-p
-                "valid"
-              "invalid")))))
+                              json-mode-mode-name
+                              (if buffer-valid-p
+                                  "valid"
+                                "invalid")))))
   ;; make the timer repeat itself
   (json-mode-timer-set))
 
