@@ -77,6 +77,10 @@
     map)
   "Keymap for `json-mode'.")
 
+(defvar json-mode-timer nil
+  "Local variable storing a reference to a timer.")
+(put 'json-mode-timer 'permanent-local t)
+
 ;;; Code:
 ;;;###autoload
 (define-derived-mode json-mode js-mode "JSON"
@@ -86,8 +90,10 @@
     (goto-char (point-min))    ; this line is ignored in pretty print function
     (set-buffer-modified-p nil))
   (when json-mode-timer-enable
-    (json-mode-timer-set)
-    (json-mode-timer-function (current-buffer))))
+    (make-local-variable 'json-mode-timer)
+    (json-mode-timer-function (current-buffer) t)
+    (add-hook 'kill-buffer-hook #'json-mode-timer-cancel nil t)
+    (add-hook 'change-major-mode-hook #'json-mode-timer-cancel nil t)))
 
 ;;; defuns
 (defun json-mode-pretty-print-buffer ()
@@ -201,12 +207,12 @@ Doesn't cross boundaries of enclosing Object or Array."
         t)
     (error nil)))
 
-(defun json-mode-timer-function (buffer)
+(defun json-mode-timer-function (buffer &optional force)
   "Idle timer function to display JSON validity in mode line.
 
-Only BUFFER will be validated."
+Only BUFFER will be validated when it's active or FORCE is t."
   ;; avoid validating when buffer isn't active
-  (when (eq (current-buffer) buffer)
+  (when (or force (eq (current-buffer) buffer))
     (setq mode-name (format "%s validating…" json-mode-mode-name))
     (let ((buffer-valid-p (json-mode-buffer-valid-p)))
       (setq mode-name (format "%s %s"
@@ -224,7 +230,15 @@ Only BUFFER will be validated."
                         #'json-mode-timer-function
                         (list (current-buffer)))
     (timer-set-idle-time timer json-mode-timer-delay)
-    (timer-activate-when-idle timer)))
+    (timer-activate-when-idle timer)
+    (setq json-mode-timer timer)))
+
+(defun json-mode-timer-cancel ()
+  "Cancel a timer in current buffer."
+  (when (local-variable-p 'json-mode-timer)
+    (when json-mode-timer
+      (cancel-timer json-mode-timer))
+    (kill-local-variable 'json-mode-timer)))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.json\\'" . json-mode))
