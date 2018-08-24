@@ -87,9 +87,8 @@
 ;;;###autoload
 (define-derived-mode json-mode js-mode json-mode-mode-name
   "A simple mode for JSON editing."
-  (when json-mode-pretty-print-on-open
-    (when (json-mode-buffer-valid-p)
-      (json-mode-pretty-print-buffer))
+  (when (and json-mode-pretty-print-on-open (json-mode-buffer-valid-p))
+    (json-mode-pretty-print-buffer)
     (goto-char (point-min))    ; this line is ignored in pretty print function
     (set-buffer-modified-p nil))
   (when json-mode-timer-enable
