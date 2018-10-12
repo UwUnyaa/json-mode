@@ -76,6 +76,7 @@
     (define-key map (kbd "C-c C-m") #'json-mode-minify-buffer)
     (define-key map (kbd "C-c C-p") #'json-mode-pretty-print-buffer)
     (define-key map (kbd "C-c C-v") #'json-mode-validate-buffer)
+    (define-key map (kbd "C-c C-l") #'json-mode-get-path-to-point)
     map)
   "Keymap for `json-mode'.")
 
@@ -123,6 +124,64 @@ Jumps to the beginning of it. Ignores errors."
         (json-object-type 'alist)
         (buffer-text (delete-and-extract-region (point-min) (point-max))))
     (insert (json-encode (json-read-from-string buffer-text)))))
+
+(defun json-mode-get-path-to-point (point)
+  "Returns the path to POINT.
+
+When called interactively, the path is added to the kill ring."
+  (interactive "d")
+  (save-excursion
+    (goto-char point)
+    (let ((path
+           (mapconcat
+            (lambda (key)
+              (if (numberp key)
+                  (format "[%d]" key)
+                (format "[%s]" key)))
+            (nreverse
+             (cl-loop
+              while (progn (skip-chars-backward " \t\r\n")
+                           (/= (point) (point-min)))
+              collect (let* ((start (point)))
+                        (backward-up-list 1 t t)
+                        (prog1
+                            (cond
+                             ((= (char-after) ?\[)
+                              ;; move into the Array
+                              (forward-char)
+                              ;; move to the end of the first value
+                              (forward-sexp)
+                              (let ((index 0))
+                                (while (<= (point) start)
+                                  (forward-sexp)
+                                  (cl-incf index))
+                                index))
+                             ((= (char-after) ?\{)
+                              ;; go back to start position
+                              (goto-char start)
+                              ;; go back an expression
+                              (backward-sexp)
+                              ;; skip whitespce
+                              (skip-chars-backward " \t\r\n")
+                              ;; go back another expression if point
+                              ;; is after the label
+                              (when (= (char-before) ?:)
+                                (backward-sexp))
+                              ;; get the expression and trim the
+                              ;; resulting string
+                              (let* ((start (point))
+                                     (end (progn (forward-sexp)
+                                                 (point))))
+                                (string-trim
+                                 (buffer-substring-no-properties
+                                  start end)))))
+                          ;; go up a level
+                          (backward-up-list 1 t t)))))
+            "")))
+      (when (called-interactively-p 'interactive)
+        (kill-new path)
+        (message "Copied to kill ring: %s" path))
+      path)))
 
 (defun json-mode-fold ()
   "Fold or unfold the Array or Object literal after point.
