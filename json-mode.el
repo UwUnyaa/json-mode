@@ -133,6 +133,9 @@ When called interactively, the path is added to the kill ring."
   (interactive "d")
   (save-excursion
     (goto-char point)
+    ;; Strings aren't relevant parts of the path, get out of them
+    (when (json-mode-inside-string-p)
+      (backward-up-list 1 t t))
     (let ((path
            (mapconcat
             (lambda (key)
