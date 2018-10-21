@@ -38,6 +38,7 @@
 (eval-when-compile
   (require 'cl))                        ; `cl-flet'
 (require 'json)
+(require 'subr-x)                       ; `string-trim'
 
 ;;; group and customizable options
 (defgroup json-mode '()
