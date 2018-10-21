@@ -156,7 +156,9 @@ When called interactively, the path is added to the kill ring."
                               (forward-char)
                               ;; move to the end of the first value
                               (when (condition-case nil
-                                        (forward-sexp)
+                                        (progn
+                                          (forward-sexp)
+                                          t)
                                       (scan-error nil))
                                 (let ((index 0))
                                   (while (< (point) start)
