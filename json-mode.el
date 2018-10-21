@@ -139,9 +139,10 @@ When called interactively, the path is added to the kill ring."
     (let ((path
            (mapconcat
             (lambda (key)
-              (if (numberp key)
-                  (format "[%d]" key)
-                (format "[%s]" key)))
+              (cond
+               ((null key) "")
+               ((numberp key) (format "[%d]" key))
+               (t (format "[%s]" key))))
             (nreverse
              (cl-loop
               while (progn (skip-chars-backward " \t\r\n")
@@ -154,12 +155,14 @@ When called interactively, the path is added to the kill ring."
                               ;; move into the Array
                               (forward-char)
                               ;; move to the end of the first value
-                              (forward-sexp)
-                              (let ((index 0))
-                                (while (< (point) start)
-                                  (forward-sexp)
-                                  (cl-incf index))
-                                index))
+                              (when (condition-case nil
+                                        (forward-sexp)
+                                      (scan-error nil))
+                                (let ((index 0))
+                                  (while (< (point) start)
+                                    (forward-sexp)
+                                    (cl-incf index))
+                                  index)))
                              ((= (char-after) ?\{)
                               ;; go back to start position
                               (goto-char start)
