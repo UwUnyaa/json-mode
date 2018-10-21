@@ -168,10 +168,11 @@ When called interactively, the path is added to the kill ring."
                              ((= (char-after) ?\{)
                               ;; go back to start position
                               (goto-char start)
-                              ;; try going back an expression
-                              (condition-case nil
-                                  (backward-sexp)
-                                (scan-error nil))
+                              ;; try going back an expression if neccesary
+                              (unless (= (char-before) ?,)
+                                (condition-case nil
+                                    (backward-sexp)
+                                  (scan-error nil)))
                               ;; skip whitespce
                               (skip-chars-backward " \t\r\n")
                               ;; go back another expression if point
