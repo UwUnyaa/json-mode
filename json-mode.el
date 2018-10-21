@@ -156,7 +156,7 @@ When called interactively, the path is added to the kill ring."
                               ;; move to the end of the first value
                               (forward-sexp)
                               (let ((index 0))
-                                (while (<= (point) start)
+                                (while (< (point) start)
                                   (forward-sexp)
                                   (cl-incf index))
                                 index))
