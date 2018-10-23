@@ -141,9 +141,12 @@ Jumps to the beginning of it. Ignores errors."
     (insert (json-encode (json-read-from-string buffer-text)))))
 
 (defun json-mode-get-path-to-point (point &optional formatter)
-  "Returns the path to POINT.
+  "Return the path to POINT.
 
-When called interactively, the path is added to the kill ring."
+When called interactively, the path is added to the kill ring.
+
+When called non-interactively, path is formatted by FORMATTER or
+value of `json-mode-path-format'."
   (interactive "d")
   (save-excursion
     (goto-char point)
@@ -208,7 +211,7 @@ When called interactively, the path is added to the kill ring."
       formatted-path)))
 
 (defun json-mode-format-path-brackets (keys)
-  "Format a JSON path as bracket notation.
+  "Format a KEYS as bracket notation JSON path.
 
 Intended for use in `json-mode-get-path-to-point'."
   (mapconcat
