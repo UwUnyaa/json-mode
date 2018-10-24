@@ -224,6 +224,27 @@ Intended for use in `json-mode-get-path-to-point'."
    keys
    ""))
 
+(defun json-mode-format-path-js (keys)
+  "Format KEYS as JavaScript notation path.
+
+Intended for use in `json-mode-get-path-to-point'."
+  (mapconcat
+   (lambda (key)
+     (let ((parsed-key
+            (condition-case nil
+                (read key)
+              (error nil))))
+       (cond
+        ((numberp key)
+         (format "[%d]" key))
+        ((and (stringp parsed-key)
+              (string-match "^[0-9]\\|[^A-Za-z0-9$_]" parsed-key))
+         (format "[%s]" key))
+        (t
+         (format ".%s" parsed-key)))))
+   keys
+   "")))
+
 (defun json-mode-fold ()
   "Fold or unfold the Array or Object literal after point.
 Doesn't cross boundaries of enclosing Object or Array."
