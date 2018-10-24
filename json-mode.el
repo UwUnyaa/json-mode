@@ -211,7 +211,7 @@ value of `json-mode-path-format'."
       formatted-path)))
 
 (defun json-mode-format-path-brackets (keys)
-  "Format a KEYS as bracket notation JSON path.
+  "Format KEYS as bracket notation JSON path.
 
 Intended for use in `json-mode-get-path-to-point'."
   (mapconcat
