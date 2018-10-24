@@ -219,7 +219,7 @@ Intended for use in `json-mode-get-path-to-point'."
      (format
       (if (numberp key)
           "[%d]"
-        "%s")
+        "[%s]")
       key))
    keys
    ""))
