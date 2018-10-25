@@ -243,7 +243,7 @@ Intended for use in `json-mode-get-path-to-point'."
         (t
          (format ".%s" parsed-key)))))
    keys
-   "")))
+   ""))
 
 (defun json-mode-fold ()
   "Fold or unfold the Array or Object literal after point.
