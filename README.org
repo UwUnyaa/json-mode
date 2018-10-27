@@ -10,6 +10,10 @@ This is a simple JSON editing mode for Emacs.
 - Minification (=C-c C-m=)
 - Idle time validation with result displayed on mode line
 - Validation (=C-c C-v=)
+- Get a path to value at point (=C-c C-l=) in following formats
+  - JavaScript notation (default)
+  - bracket notation
+  - JSON pointer ([[https://tools.ietf.org/html/rfc6901][RFC 6091]])
 
 [[https://asciinema.org/a/OJccRvxhZjLLBvovqEtV3PEF7][https://asciinema.org/a/OJccRvxhZjLLBvovqEtV3PEF7.png]]
 
