@@ -206,8 +206,11 @@ value of `json-mode-path-format'."
                                         json-mode-path-format)
                                     path)))
       (when (called-interactively-p 'interactive)
-        (kill-new formatted-path)
-        (message "Copied to kill ring: %s" formatted-path))
+        (if (> (length formatted-path) 0)
+            (progn
+              (kill-new formatted-path)
+              (message "Copied to kill ring: %s" formatted-path))
+          (message "Nothing to copy")))
       formatted-path)))
 
 (defun json-mode-format-path-brackets (keys)
