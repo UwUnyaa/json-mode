@@ -248,6 +248,31 @@ Intended for use in `json-mode-get-path-to-point'."
    keys
    ""))
 
+(defun json-mode-format-path-json-pointer (keys)
+  "Format KEYS as JSON pointer (RFC 6901).
+
+Intended for use in `json-mode-get-path-to-point'."
+  (mapconcat
+   (lambda (key)
+     (let ((parsed-key
+            (condition-case nil
+                (read key)
+              (error nil))))
+       (cond
+        ((numberp key)
+         (format "/%d" key))
+        (t
+         (format "/%s"
+                 (cl-reduce
+                  (lambda (acc next)
+                    (destructuring-bind (regexp . replacement) next
+                      (replace-regexp-in-string regexp replacement acc)))
+                  '(("~" . "~0")
+                    ("/" . "~1"))
+                  :initial-value parsed-key))))))
+   keys
+   ""))
+
 (defun json-mode-fold ()
   "Fold or unfold the Array or Object literal after point.
 Doesn't cross boundaries of enclosing Object or Array."
