@@ -73,7 +73,6 @@ and returns a string with a fromatted path. Each element of that
 list is either a string (key for an Object) or a number (Array
 index)."
   :group 'json-mode
-  ;; FIXME: test this for custom functions
   :type '(choice (const :tag
                         "JavaScript"
                         json-mode-format-path-js)
