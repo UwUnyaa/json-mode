@@ -38,6 +38,7 @@
 (eval-when-compile
   (require 'cl))                        ; `cl-flet'
 (require 'json)
+(require 'subr-x)                       ; `string-trim'
 
 ;;; group and customizable options
 (defgroup json-mode '()
@@ -64,6 +65,26 @@
   :group 'json-mode
   :type 'float)
 
+(defcustom json-mode-path-format #'json-mode-format-path-js
+  "Default path format for JSON paths.
+
+The value should be a function that takes a list of path segments
+and returns a string with a fromatted path. Each element of that
+list is either a string (key for an Object) or a number (Array
+index)."
+  :group 'json-mode
+  :type '(choice (const :tag
+                        "JavaScript"
+                        json-mode-format-path-js)
+                 (const :tag
+                        "Square brackets"
+                        json-mode-format-path-brackets)
+                 (const :tag
+                        "JSON pointer (RFC 6901)"
+                        json-mode-format-path-json-pointer)
+                 (function :tag
+                        "Custom function")))
+
 ;;; constants
 (defconst json-mode-mode-name "JSON"
   "Mode name for `json-mode'.")
@@ -76,6 +97,7 @@
     (define-key map (kbd "C-c C-m") #'json-mode-minify-buffer)
     (define-key map (kbd "C-c C-p") #'json-mode-pretty-print-buffer)
     (define-key map (kbd "C-c C-v") #'json-mode-validate-buffer)
+    (define-key map (kbd "C-c C-l") #'json-mode-get-path-to-point)
     map)
   "Keymap for `json-mode'.")
 
@@ -123,6 +145,139 @@ Jumps to the beginning of it. Ignores errors."
         (json-object-type 'alist)
         (buffer-text (delete-and-extract-region (point-min) (point-max))))
     (insert (json-encode (json-read-from-string buffer-text)))))
+
+(defun json-mode-get-path-to-point (point &optional formatter)
+  "Return the path to POINT.
+
+When called interactively, the path is added to the kill ring.
+
+When called non-interactively, path is formatted by FORMATTER or
+value of `json-mode-path-format'."
+  (interactive "d")
+  (save-excursion
+    (goto-char point)
+    ;; Strings aren't relevant parts of the path, get out of them
+    (when (json-mode-inside-string-p)
+      (backward-up-list 1 t t))
+    (let* ((path
+            (nreverse
+             (cl-remove-if
+              #'null
+              (cl-loop
+               while (progn (skip-chars-backward " \t\r\n")
+                            (/= (point) (point-min)))
+               collect (let* ((start (point)))
+                         (backward-up-list 1 t t)
+                         (prog1
+                             (cond
+                              ((= (char-after) ?\[)
+                               ;; move into the Array
+                               (forward-char)
+                               ;; move to the end of the first value
+                               (when (condition-case nil
+                                         (progn
+                                           (forward-sexp)
+                                           t)
+                                       (scan-error nil))
+                                 (let ((index 0))
+                                   (while (< (point) start)
+                                     (forward-sexp)
+                                     (cl-incf index))
+                                   index)))
+                              ((= (char-after) ?\{)
+                               ;; go back to start position
+                               (goto-char start)
+                               ;; try going back an expression if neccesary
+                               (unless (= (char-before) ?,)
+                                 (condition-case nil
+                                     (backward-sexp)
+                                   (scan-error nil)))
+                               ;; skip whitespce
+                               (skip-chars-backward " \t\r\n")
+                               ;; go back another expression if point
+                               ;; is after the label
+                               (when (= (char-before) ?:)
+                                 (backward-sexp))
+                               ;; get the expression and trim the
+                               ;; resulting string
+                               (let* ((start (point))
+                                      (end (progn (forward-sexp)
+                                                  (point))))
+                                 (string-trim
+                                  (buffer-substring-no-properties
+                                   start end)))))
+                           ;; go up a level
+                           (backward-up-list 1 t t)))))))
+           (formatted-path (funcall (or formatter
+                                        json-mode-path-format)
+                                    path)))
+      (when (called-interactively-p 'interactive)
+        (if (> (length formatted-path) 0)
+            (progn
+              (kill-new formatted-path)
+              (message "Copied to kill ring: %s" formatted-path))
+          (message "Nothing to copy")))
+      formatted-path)))
+
+(defun json-mode-format-path-brackets (keys)
+  "Format KEYS as bracket notation JSON path.
+
+Intended for use in `json-mode-get-path-to-point'."
+  (mapconcat
+   (lambda (key)
+     (format
+      (if (numberp key)
+          "[%d]"
+        "[%s]")
+      key))
+   keys
+   ""))
+
+(defun json-mode-format-path-js (keys)
+  "Format KEYS as JavaScript notation path.
+
+Intended for use in `json-mode-get-path-to-point'."
+  (mapconcat
+   (lambda (key)
+     (let ((parsed-key
+            (condition-case nil
+                (read key)
+              (error nil))))
+       (cond
+        ((numberp key)
+         (format "[%d]" key))
+        ((and (stringp parsed-key)
+              (string-match "^[0-9]\\|[^A-Za-z0-9$_]" parsed-key))
+         (format "[%s]" key))
+        (t
+         (format ".%s" parsed-key)))))
+   keys
+   ""))
+
+(defun json-mode-format-path-json-pointer (keys)
+  "Format KEYS as JSON pointer (RFC 6901).
+
+Intended for use in `json-mode-get-path-to-point'."
+  (mapconcat
+   (lambda (key)
+     (let ((parsed-key
+            (condition-case nil
+                (read key)
+              (error nil))))
+       (cond
+        ((numberp key)
+         (format "/%d" key))
+        (t
+         (format "/%s"
+                 (cl-reduce
+                  (lambda (acc next)
+                    (destructuring-bind (regexp . replacement) next
+                      (replace-regexp-in-string regexp replacement acc)))
+                  '(("~" . "~0")
+                    ("/" . "~1"))
+                  :initial-value parsed-key))))))
+   keys
+   ""))
 
 (defun json-mode-fold ()
   "Fold or unfold the Array or Object literal after point.
