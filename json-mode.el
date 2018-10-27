@@ -76,16 +76,15 @@ index)."
   ;; FIXME: test this for custom functions
   :type '(choice (const :tag
                         "Square brackets"
-                        #'json-mode-format-path-brackets)
+                        json-mode-format-path-brackets)
                  (const :tag
                         "JavaScript"
-                        #'json-mode-format-path-js)
+                        json-mode-format-path-js)
                  (const :tag
                         "JSON pointer (RFC 6901)"
-                        #'json-mode-format-path-json-pointer)
-                 (other :tag
-                        "Custom function"
-                        'function)))
+                        json-mode-format-path-json-pointer)
+                 (function :tag
+                        "Custom function")))
 
 ;;; constants
 (defconst json-mode-mode-name "JSON"
