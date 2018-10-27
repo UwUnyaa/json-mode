@@ -65,7 +65,7 @@
   :group 'json-mode
   :type 'float)
 
-(defcustom json-mode-path-format #'json-mode-format-path-brackets
+(defcustom json-mode-path-format #'json-mode-format-path-js
   "Default path format for JSON paths.
 
 The value should be a function that takes a list of path segments
@@ -75,11 +75,11 @@ index)."
   :group 'json-mode
   ;; FIXME: test this for custom functions
   :type '(choice (const :tag
-                        "Square brackets"
-                        json-mode-format-path-brackets)
-                 (const :tag
                         "JavaScript"
                         json-mode-format-path-js)
+                 (const :tag
+                        "Square brackets"
+                        json-mode-format-path-brackets)
                  (const :tag
                         "JSON pointer (RFC 6901)"
                         json-mode-format-path-json-pointer)
