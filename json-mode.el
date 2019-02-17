@@ -359,9 +359,20 @@ Doesn't cross boundaries of enclosing Object or Array."
   (let ((overlay (make-overlay beg end)))
     ;; FIXME: show hidden content in isearch before it's finished
     (overlay-put overlay 'invisible t)
-    (overlay-put overlay 'isearch-open-invisible #'delete-overlay)
-    (overlay-put overlay 'display json-mode-fold-ellipsis)
-    (overlay-put overlay 'evaporate t)))
+    (overlay-put overlay 'display
+                 (propertize
+                  json-mode-fold-ellipsis
+                  'keymap (let ((map (make-sparse-keymap)))
+                            (define-key map (kbd "<mouse-2>")
+                              (lambda ()
+                                (interactive)
+                                (delete-overlay overlay)))
+                            (define-key map [follow-link] 'mouse-face)
+                            map)))
+    (overlay-put overlay 'mouse-face 'highlight)
+    (overlay-put overlay 'help-echo "mouse-2: unfold")
+    (overlay-put overlay 'evaporate t)
+    (overlay-put overlay 'isearch-open-invisible #'delete-overlay)))
 
 (defun json-mode-buffer-valid-p ()
   "Check if buffer has a valid JSON inside."
