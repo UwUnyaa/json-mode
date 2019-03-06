@@ -358,7 +358,6 @@ Doesn't cross boundaries of enclosing Object or Array."
   "Hides region from BEG to END with an overlay."
   (let ((overlay (make-overlay beg end)))
     ;; FIXME: show hidden content in isearch before it's finished
-    (overlay-put overlay 'invisible t)
     (overlay-put overlay 'display
                  (propertize
                   json-mode-fold-ellipsis
