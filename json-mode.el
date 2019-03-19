@@ -1,5 +1,5 @@
 ;;; json-mode.el --- basic JSON editing mode -*- lexical-binding: t; coding: utf-8 -*-
-;;; Version: 0.6.0
+;;; Version: 0.6.1
 
 ;; Author: DoMiNeLa10 (https://github.com/DoMiNeLa10)
 
