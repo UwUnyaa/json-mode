@@ -109,6 +109,7 @@ index)."
 ;;;###autoload
 (define-derived-mode json-mode js-mode json-mode-mode-name
   "A simple mode for JSON editing."
+  (setq-local json-encoding-default-indentation (make-string js-indent-level ?\s))
   (when (and json-mode-pretty-print-on-open (json-mode-buffer-valid-p))
     (json-mode-pretty-print-buffer)
     (goto-char (point-min))    ; this line is ignored in pretty print function
