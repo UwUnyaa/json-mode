@@ -36,7 +36,8 @@
 ;; Files with .json extension will be opened with this major mode by default.
 
 (eval-when-compile
-  (require 'cl))                        ; `cl-flet'
+  (require 'cl-macs)                    ; `cl-flet'
+  (require 'cl-seq))
 (require 'json)
 (require 'subr-x)                       ; `string-trim'
 
