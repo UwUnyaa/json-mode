@@ -1,5 +1,7 @@
 #+TITLE: json-mode — a JSON editing mode
 
+Do not use this project, I've abandoned it.
+
 This is a simple JSON editing mode for Emacs.
 
 * Features
