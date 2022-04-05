@@ -272,7 +272,7 @@ Intended for use in `json-mode-get-path-to-point'."
          (format "/%s"
                  (cl-reduce
                   (lambda (acc next)
-                    (destructuring-bind (regexp . replacement) next
+                    (cl-destructuring-bind (regexp . replacement) next
                       (replace-regexp-in-string regexp replacement acc)))
                   '(("~" . "~0")
                     ("/" . "~1"))
